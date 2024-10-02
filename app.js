@@ -1,5 +1,6 @@
 const express = require('express')
 const app = express()
+const cors = require('cors')
 const router = require('./routes.js')
 require("dotenv").config({ path: ".env" });
 const port = process.env.PORT
@@ -7,6 +8,7 @@ const mongoose = require('mongoose')
 
 app.use(express.json())
 app.use(router)
+app.use(cors())
 
 const connectBDD = async ()=>{
     try {
