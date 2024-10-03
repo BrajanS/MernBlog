@@ -1,6 +1,6 @@
 const express = require('express')
 const route = express()
-const articleModel = require('./models/model.js')
+const articleModel = require('../models/model.js')
 
 route.get('/', async (req,res)=>{
     try {
