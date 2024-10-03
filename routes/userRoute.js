@@ -2,6 +2,7 @@ const express = require('express')
 const userRoute = express()
 const userModel = require('../models/userModel.js')
 const bcrypt = require('bcryptjs')
+const token = require('jsonwebtoken')
 
 userRoute.get('/users',async (req,res)=>{
     try {
@@ -29,6 +30,23 @@ userRoute.post('/register',async (req,res)=>{
         // POST les données écrite dans le req.body
         await userModel.create(userData)
         res.json({message:`L'utilisateur "${userData.username}" à été ajouté avec succes !`})
+    } catch (error) {
+        console.log("Dans userRoute.post: ",error.message);
+        res.status(500).json({message:error.message})
+    }
+})
+
+userRoute.post('/login', async (req,res)=>{
+    try {
+        const {email,password} = req.body // Email and Pswd de req.body
+        const user = await userModel.findOne({email}) // Trouve le User dans la BDD grace à l'Email
+        if(user){
+            const isMatch = bcrypt.compareSync(password,user.password)
+            if(isMatch){
+            
+            }
+        }
+        res.json({message:'User is non-existant'})
     } catch (error) {
         console.log("Dans userRoute.post: ",error.message);
         res.status(500).json({message:error.message})
