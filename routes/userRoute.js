@@ -47,7 +47,8 @@ userRoute.post('/login', async (req,res)=>{
                 res.status(200).cookie('token',tokenSigned,{
                     httpOnly:true,
                     secure:false,       // When not using HTTPS
-                    sameSite:"None"
+                    sameSite:"None",
+                    maxAge:60*60*1000   // Life duration of Cookie
                 }).json({message:'Connexion réussie',tokenSigned,role:user.role})
             } else {
                 // If isMatch(password) doesn't match, return an error response
