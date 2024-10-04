@@ -44,7 +44,7 @@ userRoute.post('/login', async (req,res)=>{
             const isMatch = bcrypt.compareSync(password,user.password)
             if(isMatch){
                 const tokenSigned = token.sign({power:user.role},process.env.Secret)
-
+                res.cookie('token',tokenSigned).json({message:'Connexion réussie'})
             }
         }
         res.json({message:'User is non-existant'})
