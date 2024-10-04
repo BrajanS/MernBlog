@@ -4,12 +4,14 @@ const cors = require('cors')
 const router = require('./routes/routes.js')
 const userRoute = require('./routes/userRoute.js')
 require("dotenv").config({ path: "settings.env" });
+const cookieParser = require('cookie-parser')
 const port = process.env.PORT
 const mongoose = require('mongoose')
 
 app.use(express.json())
 app.use('',router)
 app.use('',userRoute)
+app.use(cookieParser())
 app.use(cors())
 
 const connectBDD = async ()=>{
