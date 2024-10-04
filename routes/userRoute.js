@@ -29,7 +29,7 @@ userRoute.post('/register',async (req,res)=>{
         userData.password = hash
         // POST les données écrite dans le req.body
         await userModel.create(userData)
-        res.json({message:`L'utilisateur "${userData.username}" à été ajouté avec succes !`})
+        res.status(200).json({message:`L'utilisateur "${userData.username}" à été ajouté avec succes !`})
     } catch (error) {
         console.log("Dans userRoute.post: ",error.message);
         res.status(500).json({message:error.message})
@@ -44,10 +44,19 @@ userRoute.post('/login', async (req,res)=>{
             const isMatch = bcrypt.compareSync(password,user.password)
             if(isMatch){
                 const tokenSigned = token.sign({power:user.role},process.env.Secret)
-                res.cookie('token',tokenSigned).json({message:'Connexion réussie'})
+                res.status(200).cookie('token',tokenSigned,{
+                    httpOnly:true,
+                    secure:false,       // When not using HTTPS
+                    sameSite:"None"
+                }).json({message:'Connexion réussie',tokenSigned,role:user.role})
+            } else {
+                // If isMatch(password) doesn't match, return an error response
+                return res.status(401).json({ message: 'Mot de passe Incorrect' });
             }
+        } else {
+            // If user is not found, return this error
+            return res.status(404).json({ message: 'User pas Trouvé' });
         }
-        res.json({message:'User is non-existant'})
     } catch (error) {
         console.log("Dans userRoute.post: ",error.message);
         res.status(500).json({message:error.message})
