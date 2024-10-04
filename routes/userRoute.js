@@ -15,6 +15,15 @@ userRoute.get('/users',async (req,res)=>{
 })
 
 userRoute.post('/register',async (req,res)=>{
+    console.log("Req.cookies.token Acquired: ",req.cookies);
+    
+    const hasToken = req.cookies.token
+    if(!hasToken){
+        return res.status(401).json({message:"Vous n'êtes pas autorisé"})
+    }
+    const isVerified = token.verify(hasToken,process.env.Secret)
+    console.log(isVerified);
+    
     const userData = req.body
     try {
         const email = userData.email // Email écrit dans req.body
@@ -43,13 +52,13 @@ userRoute.post('/login', async (req,res)=>{
         if(user){
             const isMatch = bcrypt.compareSync(password,user.password)
             if(isMatch){
-                const tokenSigned = token.sign({power:user.role},process.env.Secret)
+                const tokenSigned = token.sign({ID:user._id,ROLE:user.role},process.env.Secret)
                 res.status(200).cookie('token',tokenSigned,{
                     httpOnly:true,
                     secure:false,       // When not using HTTPS
                     sameSite:"None",
                     maxAge:60*60*1000   // Life duration of Cookie
-                }).json({message:'Connexion réussie',tokenSigned,role:user.role})
+                }).json({message:'Connexion réussie',tokenSigned,ID:user._id,ROLE:user.role})
             } else {
                 // If isMatch(password) doesn't match, return an error response
                 return res.status(401).json({ message: 'Mot de passe Incorrect' });
@@ -63,5 +72,36 @@ userRoute.post('/login', async (req,res)=>{
         res.status(500).json({message:error.message})
     }
 })
+
+// userRoute.delete('/user/:id',async (req,res)=>{     // Delete user
+//     const hasToken = req.cookies.token
+//     try {
+
+//     } catch (error) {
+//         console.log("Dans userRoute.post: ",error.message);
+//         res.status(500).json({message:error.message})
+//     }
+// })
+
+userRoute.get('/user',(req,res)=>{
+    authHeader = req.headers['authorization']
+    if(authHeader){
+        const authToken = authHeader.split(' ')[1]
+        if(token){
+            authToken.verify(token,process.env.Secret, async (err,decode)=>{
+                if(!err){
+                    const users = await userModel.find()
+                    res.json(users)
+                }
+            })
+        } else {
+            res.status(401).json({message:'Token non valide'})
+        }
+    } else {
+        res.status(401).json({message:'non autorisé'})
+    }
+})
+
+userRoute.get('/logout',(req,res)=>{res.cookie('token','').json({message:'Vous êtes déconnecté'})})
 
 module.exports = userRoute
