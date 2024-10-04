@@ -43,7 +43,7 @@ userRoute.post('/login', async (req,res)=>{
         if(user){
             const isMatch = bcrypt.compareSync(password,user.password)
             if(isMatch){
-            
+                token.sign({},process.env.Secret)
             }
         }
         res.json({message:'User is non-existant'})
