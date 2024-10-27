@@ -8,11 +8,12 @@ const cookieParser = require('cookie-parser')
 const port = process.env.PORT
 const mongoose = require('mongoose')
 
+// app.use(cors({ origin: 'http://localhost:3000', credentials: true }))
+app.use(cors())
 app.use(express.json())
 app.use(cookieParser())
 app.use('',router)
 app.use('',userRoute)
-app.use(cors())
 
 const connectBDD = async ()=>{
     try {
