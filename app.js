@@ -9,9 +9,9 @@ const port = process.env.PORT
 const mongoose = require('mongoose')
 
 app.use(express.json())
+app.use(cookieParser())
 app.use('',router)
 app.use('',userRoute)
-app.use(cookieParser())
 app.use(cors())
 
 const connectBDD = async ()=>{

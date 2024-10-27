@@ -73,22 +73,32 @@ userRoute.post('/login', async (req,res)=>{
     }
 })
 
-// userRoute.delete('/user/:id',async (req,res)=>{     // Delete user
-//     const hasToken = req.cookies.token
-//     try {
+userRoute.delete('/user/:id', async (req, res) => {   // Donne le ID and le Token (dans Bearer) pour le supprimer
+    const hasToken = req.cookies.token;
+    if (!hasToken) {
+        return res.status(401).json({ message: 'Vous n\'êtes pas autorisé' });
+    }
+    try {
+        const decoded = token.verify(hasToken, process.env.Secret);
+        const userId = req.params.id;
+        const userToDelete = await userModel.findById(userId);
+        if (!userToDelete) {
+            return res.status(404).json({ message: 'Utilisateur non trouvé' });
+        }
+        await userModel.findByIdAndDelete(userId);
+        res.status(200).json({ message: 'Utilisateur supprimé avec succès' });
+    } catch (error) {
+        console.log("Dans userRoute.delete: ", error.message);
+        res.status(500).json({ message: error.message });
+    }
+});
 
-//     } catch (error) {
-//         console.log("Dans userRoute.post: ",error.message);
-//         res.status(500).json({message:error.message})
-//     }
-// })
-
-userRoute.get('/user',(req,res)=>{
+userRoute.get('/user',(req,res)=>{          // Donne le Token dans le Bearer pour affichers les utilisateurs
     authHeader = req.headers['authorization']
     if(authHeader){
         const authToken = authHeader.split(' ')[1]
-        if(token){
-            authToken.verify(token,process.env.Secret, async (err,decode)=>{
+        if(authToken){
+            token.verify(authToken,process.env.Secret, async (err,decode)=>{
                 if(!err){
                     const users = await userModel.find()
                     res.json(users)
